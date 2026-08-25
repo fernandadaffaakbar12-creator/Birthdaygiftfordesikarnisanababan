@@ -1130,7 +1130,7 @@ body {
     /* =========================================
    EFEK MESIN TIK (TYPEWRITER)
 ========================================= */
-    .typing-text::after {
+    .typing-active::after {
         content: '|';
         /* Garis kursor mesin tik */
         color: #ffb6c1;
