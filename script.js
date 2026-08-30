@@ -1,15 +1,21 @@
 // ==========================================
-// 0. ANIMASI LOADING SPACE-THEMED
+// 0. ANIMASI LOADING WORD TO HEART
 // ==========================================
 (function () {
+    const wordsList = [
+        "luv u sweetiekuuu", "cayanggkuuu", "cintakuuuu",
+        "duniaku", "cantik", "cantiikku",
+        "princessku", "rumahhku", "lovee"
+    ];
+
     function mulaiAnimasiLoading() {
         const loadingScreen = document.getElementById('love-loading-screen');
         const starsContainer = document.getElementById('loading-stars-container');
-        const barFill = document.getElementById('loading-bar-fill');
-        const percentText = document.getElementById('loading-percent');
+        const container = document.getElementById('heart-words-container');
+
         if (!loadingScreen) return;
 
-        // Generate twinkling stars
+        // Generate twinkling stars for the loading screen
         if (starsContainer) {
             const fragment = document.createDocumentFragment();
             for (let i = 0; i < 60; i++) {
@@ -22,7 +28,6 @@
                 star.style.animationDelay = (Math.random() * 3) + 's';
                 star.style.animationDuration = (1.5 + Math.random() * 2) + 's';
 
-                // Some stars have pink/purple tint
                 const colors = ['white', 'rgba(255,182,193,0.8)', 'rgba(200,160,255,0.7)'];
                 star.style.background = colors[Math.floor(Math.random() * colors.length)];
                 star.style.boxShadow = '0 0 ' + (2 + Math.random() * 4) + 'px ' + star.style.background;
@@ -32,42 +37,98 @@
             starsContainer.appendChild(fragment);
         }
 
-        // Animate progress bar over ~5.5 seconds
-        const LOADING_DURATION = 5500; // ms
-        const startTime = performance.now();
+        if (container) {
+            // Kembalikan ke 45 titik agar bentuk love sempurna, 
+            // tapi kita selang-seling teks dengan simbol agar tulisan tidak menumpuk
+            const totalPoints = 45;
+            const wordsElements = [];
 
-        function updateProgress(now) {
-            const elapsed = now - startTime;
-            let progress = Math.min((elapsed / LOADING_DURATION) * 100, 100);
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
 
-            // Add slight easing effect — slow start, fast middle, slow end
-            const t = progress / 100;
-            const eased = t < 0.5
-                ? 2 * t * t
-                : 1 - Math.pow(-2 * t + 2, 2) / 2;
-            const displayProgress = Math.round(eased * 100);
+            const baseSize = Math.min(window.innerWidth, window.innerHeight);
+            const isMobile = window.innerWidth <= 768;
+            // Sedikit membesarkan lagi skala dari sebelumnya agar teks lebih lega di mobile
+            const scale = isMobile ? baseSize / 55 : baseSize / 40;
 
-            if (barFill) barFill.style.width = displayProgress + '%';
-            if (percentText) percentText.textContent = displayProgress + '%';
+            let wordIndex = 0;
+            // Create words and place them left and right of the screen
+            for (let i = 0; i < totalPoints; i++) {
+                const word = document.createElement('div');
+                word.classList.add('heart-word');
 
-            if (progress < 100) {
-                requestAnimationFrame(updateProgress);
-            } else {
-                // Loading complete — transition to landing page
-                setTimeout(() => {
-                    loadingScreen.style.transition = 'opacity 1s ease';
-                    loadingScreen.style.opacity = '0';
+                // Gunakan kalimat tiap 3 titik agar ada jarak kosong untuk dibaca.
+                // Titik lainnya diganti menjadi bintang (✨) agar pola love terbentuk rapi
+                if (i % 3 === 0) {
+                    word.textContent = wordsList[wordIndex % wordsList.length];
+                    wordIndex++;
+                    word.style.zIndex = "10";
+                } else {
+                    word.textContent = '✨';
+                    word.style.fontSize = '0.7rem';
+                    word.style.opacity = '0.8';
+                    word.style.zIndex = "1";
+                }
 
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                        const landingPage = document.getElementById('landing-page');
-                        if (landingPage) landingPage.style.display = '';
-                    }, 1000);
-                }, 400);
+                // Initial position: left or right of the screen
+                const isLeft = i % 2 === 0;
+                const startX = isLeft ? -150 - (Math.random() * 200) : window.innerWidth + 150 + (Math.random() * 200);
+                const startY = Math.random() * window.innerHeight;
+
+                word.style.left = startX + 'px';
+                word.style.top = startY + 'px';
+                // Adjust transition for a smooth 10 second animation
+                word.style.transition = 'left 8s cubic-bezier(0.25, 1, 0.5, 1), top 8s cubic-bezier(0.25, 1, 0.5, 1), color 8s ease, text-shadow 8s ease, opacity 4s ease';
+
+                container.appendChild(word);
+
+                wordsElements.push({
+                    element: word
+                });
             }
+
+            // Tahap 1: Kata-kata mulai tersusun membentuk love dari kiri dan kanan
+            setTimeout(() => {
+                wordsElements.forEach((item, i) => {
+                    item.element.classList.add('forming');
+
+                    const t = (i / totalPoints) * Math.PI * 2;
+                    // Heart parametric equations
+                    const hx = 16 * Math.pow(Math.sin(t), 3);
+                    const hy = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+
+                    const targetX = centerX + hx * scale;
+                    const targetY = centerY - (hy * scale) - 20; // Offset slightly up
+
+                    item.element.style.left = targetX + 'px';
+                    item.element.style.top = targetY + 'px';
+                    item.element.classList.add('glowing-word');
+                });
+            }, 100);
         }
 
-        requestAnimationFrame(updateProgress);
+        // Tahap Akhir: Selesai loading (10 detik)
+        setTimeout(() => {
+            loadingScreen.style.transition = 'opacity 1s ease';
+            loadingScreen.style.opacity = '0';
+
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                const pinScreen = document.getElementById('pin-screen');
+                if (pinScreen) {
+                    pinScreen.style.display = 'flex';
+                    pinScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        pinScreen.style.transition = 'opacity 1s ease';
+                        pinScreen.style.opacity = '1';
+
+                        // Otomatis fokus ke input PIN agar keyboard mobile langsung muncul
+                        const pinInput = document.getElementById('pin-input');
+                        if (pinInput) pinInput.focus();
+                    }, 50);
+                }
+            }, 1000);
+        }, 10000); // Total waktu sampai mulai pudar
     }
 
     if (document.readyState === 'loading') {
@@ -164,6 +225,112 @@ function tutupModal() {
         if (modalIframe) {
             modalIframe.src = "";
         }
+    }
+}
+
+// ==========================================
+// 0.5. FUNGSI PIN SCREEN
+// ==========================================
+function checkPin() {
+    const pinInput = document.getElementById('pin-input');
+    const pinError = document.getElementById('pin-error');
+    const pinPanel = document.getElementById('pin-panel');
+    const kucingSuccess = document.getElementById('kucing-success');
+    const kucingError = document.getElementById('kucing-error');
+
+    // Ganti '1234' dengan PIN yang diinginkan (contoh: 2412, 1111)
+    const PIN_BENAR = '0901';
+
+    if (pinInput.value === PIN_BENAR) {
+        // PIN Benar
+        pinError.style.opacity = '0';
+        pinInput.blur(); // Tutup keyboard
+
+        // Sembunyikan panel PIN dan tampilkan pop-up kucing sukses
+        if (pinPanel) {
+            pinPanel.style.opacity = '0';
+            setTimeout(() => {
+                pinPanel.style.display = 'none';
+
+                if (kucingSuccess) {
+                    kucingSuccess.style.display = 'block';
+                    // Trigger reflow agar animasi CSS jalan
+                    void kucingSuccess.offsetWidth;
+                    kucingSuccess.style.opacity = '1';
+                    kucingSuccess.classList.add('glow-animation'); // Bersinar saat pop up muncul
+                    
+                    setTimeout(() => {
+                        kucingSuccess.classList.remove('glow-animation');
+                    }, 3000);
+                }
+            }, 500);
+        }
+    } else if (pinInput.value.length === 4) {
+        // PIN Salah (Hanya cek jika sudah diisi 4 digit)
+        pinError.style.opacity = '0';
+        pinInput.blur(); // Tutup keyboard
+
+        // Sembunyikan panel PIN dan tampilkan pop-up kucing error
+        if (pinPanel) {
+            pinPanel.style.opacity = '0';
+            setTimeout(() => {
+                pinPanel.style.display = 'none';
+
+                if (kucingError) {
+                    kucingError.style.display = 'block';
+                    void kucingError.offsetWidth;
+                    kucingError.style.opacity = '1';
+                    kucingError.classList.add('shake-animation'); // Bergetar saat pop up muncul
+                    
+                    // Otomatis hilangkan pesan error setelah 3 detik
+                    setTimeout(() => {
+                        kucingError.style.opacity = '0';
+                        kucingError.classList.remove('shake-animation');
+                        
+                        setTimeout(() => {
+                            kucingError.style.display = 'none';
+                            
+                            // Munculkan lagi panel PIN
+                            pinPanel.style.display = 'block';
+                            void pinPanel.offsetWidth;
+                            pinPanel.style.opacity = '1';
+                            
+                            if (pinInput) {
+                                pinInput.value = ''; // Kosongkan input
+                                pinInput.focus(); // Munculkan keyboard lagi
+                            }
+                        }, 500); // Tunggu sampai animasi opacity selesai
+                    }, 3000);
+                }
+            }, 500);
+        }
+    } else {
+        // Sedang mengetik, sembunyikan error
+        pinError.style.opacity = '0';
+    }
+}
+
+// Tambahkan event listener agar otomatis mengecek setiap angka yang dimasukkan
+document.addEventListener("DOMContentLoaded", function () {
+    const pinInput = document.getElementById('pin-input');
+    if (pinInput) {
+        pinInput.addEventListener('input', function () {
+            checkPin();
+        });
+    }
+});
+
+function lanjutKeKado() {
+    const pinScreen = document.getElementById('pin-screen');
+    const landingPage = document.getElementById('landing-page');
+
+    if (pinScreen) {
+        pinScreen.style.transition = 'opacity 0.8s ease';
+        pinScreen.style.opacity = '0';
+        setTimeout(() => {
+            pinScreen.style.display = 'none';
+            if (landingPage) landingPage.style.display = ''; // Tampilkan Landing Page (Bouquet)
+        }, 800);
     }
 }
 
