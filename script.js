@@ -258,7 +258,7 @@ function checkPin() {
                     void kucingSuccess.offsetWidth;
                     kucingSuccess.style.opacity = '1';
                     kucingSuccess.classList.add('glow-animation'); // Bersinar saat pop up muncul
-                    
+
                     setTimeout(() => {
                         kucingSuccess.classList.remove('glow-animation');
                     }, 3000);
@@ -281,20 +281,20 @@ function checkPin() {
                     void kucingError.offsetWidth;
                     kucingError.style.opacity = '1';
                     kucingError.classList.add('shake-animation'); // Bergetar saat pop up muncul
-                    
+
                     // Otomatis hilangkan pesan error setelah 3 detik
                     setTimeout(() => {
                         kucingError.style.opacity = '0';
                         kucingError.classList.remove('shake-animation');
-                        
+
                         setTimeout(() => {
                             kucingError.style.display = 'none';
-                            
+
                             // Munculkan lagi panel PIN
                             pinPanel.style.display = 'block';
                             void pinPanel.offsetWidth;
                             pinPanel.style.opacity = '1';
-                            
+
                             if (pinInput) {
                                 pinInput.value = ''; // Kosongkan input
                                 pinInput.focus(); // Munculkan keyboard lagi
@@ -1021,7 +1021,7 @@ function tampilkanTahap3() {
 
         setTimeout(() => {
             if (msg) {
-                msg.textContent = 'Semoga apa yang kamu doakan dan inginkan segera terlaksana yaa, Aamiin';
+                msg.textContent = '🤍🫶🏻🫶🏻Semoga apa yang kamu doa dan inginkan segera terwujud yaa sweetieekuuu cayanggkuu, Aminnn🤍🫶🏻🫶🏻';
                 msg.className = 'candle-message show-msg final-msg';
             }
         }, 600);
